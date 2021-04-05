@@ -36,21 +36,27 @@ WSS_ENDPOINT='https://<API_GATEWAY_WEBSOCKET_ID>.execute-api.<AWS_REGION>.amazon
 ## Deploy
 `serverless deploy`
 
-##Resources 
+## Resources 
 
-###Serverless Framework Documentation
+### Serverless Framework Documentation
 https://www.serverless.com/framework/docs/
 
-###Amazon API Gateway
+### Amazon API Gateway
 
-####Working with WebSocket APIs
+#### Working with WebSocket APIs
 https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api.html
 
-###API Gateway quotas for configuring and running a WebSocket API
+### API Gateway quotas for configuring and running a WebSocket API
 https://docs.aws.amazon.com/apigateway/latest/developerguide/limits.html#apigateway-execution-service-websocket-limits-table
 
-###Amazon DynamoDB
+### Amazon DynamoDB
 https://aws.amazon.com/dynamodb/
 
-###Amazon Cognito
+### Amazon Cognito
 https://aws.amazon.com/cognito/
+
+
+## Author
+### Asen Bozhilov
+- https://github.com/abozhilov
+- https://www.linkedin.com/in/asen-bozhilov-64643527/
