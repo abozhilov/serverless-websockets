@@ -1,0 +1,92 @@
+service: devbg-websockets
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage: development
+  region: eu-central-1
+  timeout: 60
+  environment:
+    AWS_COGNITO_USER_POOL: ${env:AWS_COGNITO_USER_POOL}
+    AWS_COGNITO_CLIENT_ID: ${env:AWS_COGNITO_CLIENT_ID}
+    AWS_COGNITO_REGION: ${env:AWS_COGNITO_REGION}
+    WSS_ENDPOINT: ${env:WSS_ENDPOINT}
+  apiGateway:
+    shouldStartNameWithService: true
+  iamRoleStatements:
+      - Effect: Allow
+        Action:
+            - "execute-api:ManageConnections"
+            - "execute-api:Invoke"
+        Resource:
+            - "arn:aws:execute-api:*:*:**/@connections/*"
+      - Effect: Allow
+        Action:
+            - "dynamodb:DescribeTable"
+            - "dynamodb:PutItem"
+            - "dynamodb:GetItem"
+            - "dynamodb:DeleteItem"
+            - "dynamodb:Scan"
+            - "dynamodb:Query"
+        Resource:
+            - "arn:aws:dynamodb:eu-central-1:*:*"
+
+plugins:
+  - serverless-python-requirements
+
+package:
+  exclude:
+    - node_modules/**
+    - venv/**
+
+functions:
+  handle_connect:
+      handler: websockets.handlers.handle_connect
+      events:
+        - websocket:
+            route: $connect
+            authorizer:
+              name: cognitoAuthFunc
+              identitySource:
+                - 'route.request.header.Authorization'
+
+  handle_disconnect:
+      handler: websockets.handlers.handle_disconnect
+      events:
+        - websocket:
+            route: $disconnect
+
+  handle_message:
+      handler: websockets.handlers.handle_message
+      events:
+        - websocket:
+            route: $default
+
+  push_message:
+    handler: api.handlers.push_message
+    events:
+      - http:
+          path: /push-message
+          method: POST
+
+  cognitoAuthFunc:
+    handler: authentication.handlers.cognito_auth
+
+
+resources:
+  Resources:
+    ConnectionsPool:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ConnectionsPool
+        AttributeDefinitions:
+          - AttributeName: connection_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connection_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
